@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+</head>
+<body>
+<form method="POST">
+    <input type="text" name="search_query" placeholder="Enter your search query">
+    <button type="submit">Search</button>
+</form>
+
+<div>
+    <h2>Search Result</h2>
+    <label>Name:</label> <span>{{ result[0] }}</span><br>
+    <label>Email:</label> <span>{{ result[1] }}</span><br>
+    <!-- Add more labels and data fields as needed -->
+</div>
+</body>
+</html>
