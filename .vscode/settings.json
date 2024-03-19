@@ -5,8 +5,10 @@
         "javascrpit",
         "layui",
         "lstm",
+        "oneline",
         "orderid",
         "pymysql",
+        "reflog",
         "tailwindcss"
     ],
     "emmet.syntaxProfiles": {
