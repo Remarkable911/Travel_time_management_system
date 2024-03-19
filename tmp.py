@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, flash
 from pymysql import Connection
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'ADJL'
+app.config['SECRET_KEY'] = '12345'
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -18,7 +18,6 @@ def login():
         sql = "select * from `user` where id=%s and pwd=%s"
         cursor.execute(sql, [username, password])
         res = cursor.fetchone()
-
         if res is not None:
             return redirect('/menu')
         else:

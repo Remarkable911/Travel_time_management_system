@@ -1,0 +1,16 @@
+{
+    "cSpell.words": [
+        "ADJL",
+        "bootstarp",
+        "javascrpit",
+        "layui",
+        "lstm",
+        "orderid",
+        "pymysql",
+        "tailwindcss"
+    ],
+    "emmet.syntaxProfiles": {
+         "vue-html": "html",
+         "vue": "html"
+    }
+}

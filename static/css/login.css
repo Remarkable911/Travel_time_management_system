@@ -1,75 +1,69 @@
-
-#wrap{
-
-    height:100vh;
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    background: rgb(1, 21, 94)
-    no-repeat center;
-    background-size:cover;
+#wrap {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #01155e no-repeat center;
+  background-size: cover;
 }
-
-#wrap p{
-    width:550px;
-    display: flex;
-    margin-bottom: 50px;
-    background: #fff;
-    font-size: 24px;
-    border-radius:30px;
-    line-height:65px;
-    position: relative;
+#wrap p {
+  width: 550px;
+  display: flex;
+  margin-bottom: 50px;
+  background: #fff;
+  font-size: 24px;
+  border-radius: 30px;
+  line-height: 65px;
+  position: relative;
 }
-#wrap label{
-    width:130px;
-    background: #ffeb7b;
-    color:black;
-    text-align: center;
-    border-radius:30px;
+#wrap label {
+  width: 130px;
+  background: #ffeb7b;
+  color: black;
+  text-align: center;
+  border-radius: 30px;
 }
-#wrap input{
-    width: 100%;
-    border:none;
-    font-size:20px;
-    color:#b2b2b2;
-    padding-left: 10px;
-    border-radius: 0 30px 30px 0;
+#wrap input {
+  width: 100%;
+  border: none;
+  font-size: 20px;
+  color: #b2b2b2;
+  padding-left: 10px;
+  border-radius: 0 30px 30px 0;
 }
-#wrap .tips{
-    position: absolute;
-    top: 0;
-    right:20px;
-    font-size:16px;
-    color:red;
+#wrap .tips {
+  position: absolute;
+  top: 0;
+  right: 20px;
+  font-size: 16px;
+  color: red;
 }
-input::placeholder{
-    color:#ccc;
-    font-size:16px;
+input::placeholder {
+  color: #ccc;
+  font-size: 16px;
 }
-#wrap button{
-    width:120px;
-    height:65px;
-    margin: 0 10px;
-    background: #ffeb7b;
-
-    font-size:24px;
-    color:black;
-    border-radius: 30px;
+#wrap button {
+  width: 120px;
+  height: 65px;
+  margin: 0 10px;
+  background: #ffeb7b;
+  font-size: 24px;
+  color: black;
+  border-radius: 30px;
 }
-#wrap button:nth-child(2){
-    background: #cc2e2a;
+#wrap button:nth-child(2) {
+  background: #cc2e2a;
 }
-#title{
-    width: 400px;
-    margin-bottom: 80px;
-    text-align: center;
-    font-size: 30px;
-    color:  #ffeb7b;
+#title {
+  width: 400px;
+  margin-bottom: 80px;
+  text-align: center;
+  font-size: 30px;
+  color: #ffeb7b;
 }
-#wrap .center{
-    display: flex;
-    align-content: center;
-    justify-content: space-around;
+#wrap .center {
+  display: flex;
+  align-content: center;
+  justify-content: space-around;
 }
