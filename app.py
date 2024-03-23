@@ -106,6 +106,12 @@ def manage():
         data = execute_query(sql)
         return render_template('manage.html', data=data)
     
+# 数据处理界面
+@app.route('/processing', methods=['GET', 'POST'])
+def processing():
+    sql = "SELECT * FROM `order` ORDER BY orderid  LIMIT 100"
+    data = execute_query(sql)
+    return render_template('processing.html', data=data)
 
 # 登录界面
 @app.route('/login', methods=['GET', 'POST'])

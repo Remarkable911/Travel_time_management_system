@@ -1,18 +1,18 @@
 {
-    "cSpell.words": [
-        "ADJL",
-        "bootstarp",
-        "javascrpit",
-        "layui",
-        "lstm",
-        "oneline",
-        "orderid",
-        "pymysql",
-        "reflog",
-        "tailwindcss"
-    ],
-    "emmet.syntaxProfiles": {
-         "vue-html": "html",
-         "vue": "html"
-    }
+  "cSpell.words": [
+      "ADJL",
+      "bootstarp",
+      "javascrpit",
+      "layui",
+      "lstm",
+      "oneline",
+      "orderid",
+      "pymysql",
+      "reflog",
+      "tailwindcss"
+  ],
+  "emmet.syntaxProfiles": {
+       "vue-html": "html",
+       "vue": "html"
+  }
 }

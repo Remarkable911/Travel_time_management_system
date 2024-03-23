@@ -5,199 +5,48 @@
     <meta charset="UTF-8">
     <title>主页-行程时间管理系统</title>
 
-    <link rel="stylesheet" href="/static/plugins/bootstrap-3.4.1-dist/css/bootstrap.css">
-    <link rel="stylesheet" href="/static/plugins/font-awesome-4.7.0/css/font-awesome.css">
+
+    <link rel="stylesheet" href="/static/plugins/bootstrap-5.3.0-alpha1-dist/css/bootstrap.css">
     <link rel="stylesheet" href="/static/css/common/reset.css">
     <link rel="stylesheet" href="/static/css/menu.css">
-    <link rel="stylesheet" href="/static/plugins/layui/css/layui.css">
 </head>
 
 <body>
-
-
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">行程时间管理系统</a>
-        </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
-                       aria-expanded="false">
-                        系统管理<span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">用户管理</a></li>
-                        <li><a href="#">权限管理</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
-                       aria-expanded="false">
-                        数据处理<span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">订单导入</a></li>
-                        <li><a href="#">天气导入</a></li>
-                        <li><a href="#">路径关系导入</a></li>
-                        <li><a href="#">订单列表</a></li>
-                        <li><a href="#">轨迹查询</a></li>
-
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
-                       aria-expanded="false">
-                        数据清洗<span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">异常数据处理</a></li>
-                        <li><a href="#">轨迹合并</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
-                       aria-expanded="false">
-                        数据统计<span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">流量统计</a></li>
-                        <li><a href="#">流量趋势</a></li>
-                        <li><a href="#">轨迹统计</a></li>
-                    </ul>
-                </li>
-                <li><a href="#">行程时间预测</a></li>
-
-
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="/login">登录</a></li>
-                <li><a href="/register">注册</a></li>
-            </ul>
-        </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
-
-</nav>
-
-<section class="mainbox">
-    <div class="column">
-        <div class="panel line">
-            <h2>2020年8月气温情况</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-        </div>
-        <div class="panel bar">
-            <h2>订单信息：</h2>
-            <div class="order-info">
-
-                <div class="layui-form-item">
-                    <label class="white layui-form-label ">编号：</label>
-                    <div class="layui-input-block white-back">
-                        <label class="white-back"></label>
-                    </div>
-                </div>
-                <div class="layui-form-item">
-                    <label class="white layui-form-label ">总时间：</label>
-                    <div class="layui-input-block white-back">
-                        <label class="white-back black"></label>
-                    </div>
-                </div>
-                <div class="layui-form-item">
-                    <label class="white layui-form-label ">距离：</label>
-                    <div class="layui-input-block white-back">
-                        <label class="white-back black"></label>
-                    </div>
-                </div>
-                <div class="layui-form-item">
-                    <label class="white layui-form-label ">平均通行：</label>
-                    <div class="layui-input-block white-back">
-                        <label class="white-back black"></label>
-                    </div>
-                </div>
-                <div class="layui-form-item">
-                    <label class="white layui-form-label ">司机：</label>
-                    <div class="layui-input-block white-back">
-                        <label class="white-back black"></label>
-                    </div>
-                </div>
-                <div class="layui-form-item">
-                    <label class="white layui-form-label ">日期：</label>
-                    <div class="layui-input-block white-back">
-                        <label class="white-back black"></label>
-                    </div>
-                </div>
-
-
+    <div class="container">
+        <!-- 导航栏 -->
+        <header
+            class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+            <div class="col-md-3 mb-2 mb-md-0">
+                <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+                    <div style="font-size: 25px;">行程时间管理系统</div>
+                </a>
             </div>
+            <!-- 如果想标识所在标签，class加link-secondary -->
+            <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="/menu" class="nav-link px-2 ">首页</a></li>
+                <li><a href="/manage" class="nav-link px-2 ">系统管理</a></li>
+                <li><a href="/processing" class="nav-link px-2">数据处理</a></li>
+                <li><a href="/clear" class="nav-link px-2">数据清洗</a></li>
+                <li><a href="/statistics" class="nav-link px-2">数据统计</a></li>
+                <li><a href="/forecast" class="nav-link px-2">行程时间预测</a></li>
+
+            </ul>
+
+            <div class="col-md-3 text-end">
+                <button type="button" class="btn btn-outline-primary me-2">登录</button>
+                <button type="button" class="btn btn-primary">注册</button>
+            </div>
+        </header>
+        <div class="mainbox">
 
         </div>
-        <div class="panel1 bar">
-
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-        </div>
-
     </div>
 
-    <div class="column">
-
-        <form method="post" class="orderid">
-            <p>
-                <label class="orderlabel">订单编号：</label>
-                <input type="text" class="in" id="in" name="in" placeholder="请输入"/>
-                <button class="btn_search" type="submit" onclick="showInput()">搜索</button>
-            </p>
-        </form>
 
 
-    </div>
+    <script src="/static/js/jquery-3.7.1.js"></script>
+    <script src="/static/plugins/bootstrap-5.3.0-alpha1-dist/js/bootstrap.js"></script>
 
-    <div class="column">
-        <div class="panel bar">
-            <h2>订单信息：</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-        </div>
-        <div class="panel bar">
-            <h2>天气</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-        </div>
-        <div class="panel bar">
-            <h2>天气</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-        </div>
-    </div>
-</section>
-
-
-<script src="/static/js/jquery-3.7.1.js"></script>
-<script src="/static/plugins/bootstrap-3.4.1-dist/js/bootstrap.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.4/??flexible_css.js,flexible.js"></script>
-<script src="/static/js/flexible.js"></script>
-<script src="/static/js/echarts.min.js"></script>
-<script>
-    function showInput() {
-        var val = $("#in").val();
-        alert("想要查询的订单编号为" + val);
-    }
-</script>
-<script src="/static/js/mychart.js"></script>
-<script src="/static/plugins/layui/layui.js"></script>
 </body>
 
 </html>
