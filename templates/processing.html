@@ -1,98 +1,287 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'container.html' %}
+{% block title %}
+数据处理-行程时间管理系统
+{% endblock %}
+{% block extcss %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>数据处理-行程时间管理系统</title>
-    <link rel="stylesheet" href="/static/plugins/bootstrap-5.3.0-alpha1-dist/css/bootstrap.css">
-    <link rel="stylesheet" href="/static/css/common/reset.css">
-    <link rel="stylesheet" href="/static/css/processing.css">
-</head>
-
-<body>
-    <!-- 实现的功能-数据处理：订单导入、天气导入、路径导入、订单列表显示、轨迹查询 -->
-    <!--三种导入功能的实现：
-    element-ui
-    整体Tabs标签页
-    Upload上传
-    拖拽上传 -->
-    <div class="container">
-        <header
-            class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
-            <div class="col-md-3 mb-2 mb-md-0">
-                <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
-                    <div style="font-size: 25px;">行程时间管理系统</div>
-                </a>
-            </div>
-            <!-- 如果想标识所在标签，class加link-secondary -->
-            <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="/menu" class="nav-link px-2 ">首页</a></li>
-                <li><a href="/manage" class="nav-link px-2 ">系统管理</a></li>
-                <li><a href="/processing" class="nav-link px-2">数据处理</a></li>
-                <li><a href="/clear" class="nav-link px-2">数据清洗</a></li>
-                <li><a href="/statistics" class="nav-link px-2">数据统计</a></li>
-                <li><a href="/forecast" class="nav-link px-2">行程时间预测</a></li>
-
-            </ul>
-
-            <div class="col-md-3 text-end">
-                <button type="button" class="btn btn-outline-primary me-2">登录</button>
-                <button type="button" class="btn btn-primary">注册</button>
-            </div>
-        </header>
-        <div class="mainbox">
-            <div class="banner" style="display: flex;justify-content: space-between;">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/processing.css') }}">
+{% endblock %}
+{% block mainbox %}
+<!-- 面包屑 -->
+<div class="accordion accordion-flush" id="accordionFlushExample">
+    <!-- 订单导入组件 -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                订单导入
+            </button>
+        </h2>
+        <!-- 订单导入主体部分 -->
+        <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+                <!-- 头部 -->
                 <div class="order-in">
-                    <label for="formFile" class="form-label">订单导入</label>
-                    <input class="form-control" type="file" id="formFile">
-                </div>
-                <div class="weather-in">
-                    <label for="formFile" class="form-label">天气导入</label>
-                    <input class="form-control" type="file" id="formFile">
-                </div>
-                <div class="dis-in">
-                    <label for="formFile" class="form-label">路径导入</label>
-                    <input class="form-control" type="file" id="formFile">
-                </div>
-            </div>
-            <div class="order-list">
-                <h3>订单列表显示</h3>
-                <table class="table table-striped table-hover table-responsive text-center">
-                    <thead>
-                        <tr>
-                            <th scope="col">订单编号</th>
-                            <th scope="col">真实行程总时间</th>
-                            <th scope="col">路线距离</th>
-                            <th scope="col">出发时刻平均通行时间和</th>
-                            <th scope="col">司机编号</th>
-                            <th scope="col">出发时刻时间片编号</th>
-                            <th scope="col">日期</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in data %}
-                        <tr data-id="{{ row.username }}">
-                            <td style="vertical-align: middle;font-size:large">{{ row.orderid }}</td>
-                            <td style="vertical-align: middle;font-size:large">{{ row.ata }}</td>
-                            <td style="vertical-align: middle;font-size:large">{{ row.distance }}</td>
-                            <td style="vertical-align: middle;font-size:large">{{ row.simpleeta }}</td>
-                            <td style="vertical-align: middle;font-size:large">{{ row.driveid }}</td>
-                            <td style="vertical-align: middle;font-size:large">{{ row.sliceid }}</td>
-                            <td style="vertical-align: middle;font-size:large">{{ row.date }}</td>
+                    <div class="banner-in">
+                        <label for="orderFile" class="form-label">订单导入</label>
+                        <label class="download-example">请参考样例格式上传文件</label>
+                        <a href="../static/example/example_order.CSV" id="download-exam1" class="btn btn-primary"
+                            download>参考样例</a>
+                    </div>
 
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="track-query">
+                    <input class="form-control file-in" type="file" id="orderFile" accept=".csv" name="order_file">
+                    <button class="btn btn-primary order-in-btn" type="submit" data-action="in-one">导入</button>
+                </div>
+                <!-- 表格 -->
+                <div class="order-list">
+                    <!-- 表格控件（无边框，可悬停，有切换页码） -->
+                    <div class="row">
+                        <table class="table table-striped table-hover table-responsive text-center">
+                            <thead>
+                                <tr>
 
+                                    <th scope="col">订单编号</th>
+                                    <th scope="col">真实行程总时间</th>
+                                    <th scope="col">路线距离</th>
+                                    <th scope="col">出发时刻平均通行时间</th>
+                                    <th scope="col">司机编号</th>
+                                    <th scope="col">出发时刻时间片编号</th>
+                                    <th scope="col">日期</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in data1 %}
+                                <tr data-id="{{ row.orderid }}">
+                                    <td style="vertical-align: middle;font-size:large">{{ row.orderid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.ata }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.distance }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.simpleeta }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.driveid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.sliceid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.date }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    <!-- 天气导入组件 -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                天气导入
+            </button>
+        </h2>
+        <!-- 主体 -->
+        <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+                <!-- 头部 -->
+                <div class="weather-in">
+                    <div class="banner-in ">
+                        <label for="weatherFile" class="form-label">天气导入</label>
+                        <label class="download-example">请参考样例格式上传文件</label>
+                        <a href="../static/example/example_weather.CSV" id="download-exam2" class="btn btn-primary"
+                            download>参考样例</a>
+                    </div>
 
-    <script src="/static/js/jquery-3.7.1.js"></script>
-    <script src="/static/plugins/bootstrap-5.3.0-alpha1-dist/js/bootstrap.js"></script>
-</body>
+                    <input class="form-control file-in" type="file" id="weatherFile" accept=".csv" name="weather_file">
+                    <button class="btn btn-primary weather-in-btn" type="submit" data-action="in-two">导入</button>
+                </div>
+                <!-- 表格 -->
+                <div class="order-list">
+                    <!-- 表格控件（无边框，可悬停，有切换页码） -->
+                    <div class="row">
+                        <table class="table table-striped table-hover table-responsive text-center">
+                            <thead>
+                                <tr>
+                                    <th scope="col">日期</th>
+                                    <th scope="col">天气情况</th>
+                                    <th scope="col">最高气温</th>
+                                    <th scope="col">最低气温</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in data2 %}
+                                <tr data-id="{{ row.date }}">
+                                    <td style="vertical-align: middle;font-size:large">{{ row.date }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.weather }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.hightemp }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.lowtemp }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 路径导入组件 -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+                路径导入
+            </button>
+        </h2>
+        <!-- 路径导入主体部分 -->
+        <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+                <!-- 头部 -->
+                <div class="section-in">
+                    <div class="banner-in">
+                        <label for="sectionFile" class="form-label">路径导入</label>
+                        <label class="download-example">请参考样例格式上传文件</label>
+                        <a href="../static/example/example_intersection.CSV" id="download-exam3" class="btn btn-primary"
+                            download>参考样例</a>
+                    </div>
 
-</html>
+                    <input class="form-control file-in" type="file" id="sectionFile" accept=".csv" name="section_file">
+                    <button class="btn btn-primary section-in-btn" type="submit" data-action="in-three">导入</button>
+                </div>
+                <!-- 表格 -->
+                <div class="order-list">
+                    <!-- 表格控件（无边框，可悬停，有切换页码） -->
+                    <div class="row">
+                        <table class="table table-striped table-hover table-responsive text-center">
+                            <thead>
+                                <tr>
+                                    <th scope="col">红绿灯路口编号</th>
+                                    <th scope="col">路口通行时间</th>
+                                    <th scope="col">驶入路口编号</th>
+                                    <th scope="col">驶出路口编号</th>
+                                    <th scope="col">订单编号</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in data3 %}
+                                <tr data-id="{{ row.create_at }}">
+                                    <td style="vertical-align: middle;font-size:large">{{ row.crossid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.crosstime }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.entranceid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.exitid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.orderid }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block extjs %}
+<script>
+    $(document).ready(function () {
+        $('.file-in').change(function (event) {
+            const file = event.target.files[0];
+            const allowedTypes = ['text/csv', 'application/vnd.ms-excel'];
+
+            if (file && !allowedTypes.includes(file.type)) {
+                alert('Invalid file type. Please choose a CSV file.');
+                // 清空文件输入字段的值
+                $(this).val('');
+            }
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('.order-in-btn').click(function () {
+            // 获取上传的文件
+            const file = $('#orderFile')[0].files[0];
+
+            // 创建 FormData 对象，用于将文件数据发送到服务器
+            const formData = new FormData();
+            formData.append('order_file', $('#orderFile')[0].files[0]);
+            // 发送 AJAX 请求将文件数据发送到服务器
+            $.ajax({
+                url: '/processing', // 服务器端处理上传的 URL
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    alert('csv文件导入成功!');
+                    // 可以根据服务器返回的响应执行其他操作
+                },
+                error: function (xhr, status, error) {
+                    alert('csv文件导入失败: ' + error);
+                    // 可以根据错误信息执行其他操作
+                }
+            });
+        
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.weather-in-btn').click(function () {
+            // 获取上传的文件
+            const fileInput = $('#weatherFile')[0];
+            const file = fileInput.files[0];
+
+            // 创建 FormData 对象，用于将文件数据发送到服务器
+            const formData = new FormData();
+            formData.append('weather_file', file);
+
+            // 发送 AJAX 请求将文件数据发送到服务器
+            $.ajax({
+                url: '/processing', // 服务器端处理上传的 URL
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    alert('csv文件导入成功!');
+                    // 可以根据服务器返回的响应执行其他操作
+                },
+                error: function (xhr, status, error) {
+                    alert('csv文件导入失败: ' + error);
+                    // 可以根据错误信息执行其他操作
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.section-in-btn').click(function () {
+            // 获取上传的文件
+            const fileInput = $('#sectionFile')[0];
+            const file = fileInput.files[0];
+
+            // 创建 FormData 对象，用于将文件数据发送到服务器
+            const formData = new FormData();
+            formData.append('section_file', file);
+            
+            // 发送 AJAX 请求将文件数据发送到服务器
+            $.ajax({
+                url: '/processing', // 服务器端处理上传的 URL
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    alert('csv文件导入成功!');
+                    // 可以根据服务器返回的响应执行其他操作
+                },
+                error: function (xhr, status, error) {
+                    alert('csv文件导入失败: ' + error);
+                    // 可以根据错误信息执行其他操作
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
