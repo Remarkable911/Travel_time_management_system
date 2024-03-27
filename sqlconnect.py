@@ -1,7 +1,7 @@
 import pymysql
 
 #1.连接mysql
-conn=pymysql.connect(host='127.0.0.1', port=3306,user='root',password='',charset='utf8',db='trip')
+conn=pymysql.connect(host='127.0.0.1', port=3306,user='root',password='',charset='utf8',db='tmpsql')
 cursor=conn.cursor(cursor=pymysql.cursors.DictCursor)
 
 #2.发送指令

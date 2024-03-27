@@ -23,14 +23,60 @@
                 <!-- 头部 -->
                 <div class="order-in">
                     <div class="banner-in">
-                        <label for="orderFile" class="form-label">订单导入</label>
+                        <label for="order_file" class="form-label">订单导入</label>
                         <label class="download-example">请参考样例格式上传文件</label>
                         <a href="../static/example/example_order.CSV" id="download-exam1" class="btn btn-primary"
                             download>参考样例</a>
                     </div>
 
-                    <input class="form-control file-in" type="file" id="orderFile" accept=".csv" name="order_file">
+                    <input class="form-control file-in" type="file" id="order_file" accept=".csv" name="order_file">
                     <button class="btn btn-primary order-in-btn" type="submit" data-action="in-one">导入</button>
+                </div>
+                <div class="row mb-4" id="form-query">
+                    <form id="query-users">
+
+                        <div class="row">
+                            <div class="col mb-2">
+                                <h3>按日期查询:</h3>
+                            </div>
+                            <div class="col mb-2">
+
+                                <div>
+                                    <input type="number" class="form-control" name="year" id="year" required>
+                                </div>
+                                <label for="year" class="col-form-label ">年</label>
+                            </div>
+
+                            <div class="col mb-2">
+
+                                <div>
+                                    <input type="number" class="form-control" id="month" name="month" required>
+                                </div>
+                                <label for="month" class="col-form-label ">月</label>
+                            </div>
+                            <div class="col mb-2">
+
+                                <div>
+                                    <input type="number" class="form-control" id="day" name="day" required>
+                                </div>
+                                <label for="day" class="col-form-label ">日</label>
+                            </div>
+                            <div class="col mb-2">
+                                <div class="row mt-4">
+                                    <div class="col mb-2">
+                                        <button type="submit" class="btn btn-primary query-order-btn"
+                                            data-action="query-order"> 查询订单
+                                        </button>
+                                    </div>
+                                    <div class=" col mb-2">
+                                        <button type="reset" class="btn btn-warning"> 重置 </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </form>
                 </div>
                 <!-- 表格 -->
                 <div class="order-list">
@@ -57,7 +103,7 @@
                                     <td style="vertical-align: middle;font-size:large">{{ row.ata }}</td>
                                     <td style="vertical-align: middle;font-size:large">{{ row.distance }}</td>
                                     <td style="vertical-align: middle;font-size:large">{{ row.simpleeta }}</td>
-                                    <td style="vertical-align: middle;font-size:large">{{ row.driveid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.driverid }}</td>
                                     <td style="vertical-align: middle;font-size:large">{{ row.sliceid }}</td>
                                     <td style="vertical-align: middle;font-size:large">{{ row.date }}</td>
                                 </tr>
@@ -89,7 +135,7 @@
                             download>参考样例</a>
                     </div>
 
-                    <input class="form-control file-in" type="file" id="weatherFile" accept=".csv" name="weather_file">
+                    <input class="form-control file-in" type="file" id="weather_file" accept=".csv" name="weather_file">
                     <button class="btn btn-primary weather-in-btn" type="submit" data-action="in-two">导入</button>
                 </div>
                 <!-- 表格 -->
@@ -141,7 +187,7 @@
                             download>参考样例</a>
                     </div>
 
-                    <input class="form-control file-in" type="file" id="sectionFile" accept=".csv" name="section_file">
+                    <input class="form-control file-in" type="file" id="section_file" accept=".csv" name="section_file">
                     <button class="btn btn-primary section-in-btn" type="submit" data-action="in-three">导入</button>
                 </div>
                 <!-- 表格 -->
@@ -180,13 +226,14 @@
 {% endblock %}
 {% block extjs %}
 <script>
+    //检查文件是否为csv文件
     $(document).ready(function () {
         $('.file-in').change(function (event) {
             const file = event.target.files[0];
             const allowedTypes = ['text/csv', 'application/vnd.ms-excel'];
 
             if (file && !allowedTypes.includes(file.type)) {
-                alert('Invalid file type. Please choose a CSV file.');
+                alert('请选择csv文件！');
                 // 清空文件输入字段的值
                 $(this).val('');
             }
@@ -196,12 +243,14 @@
 <script>
     $(document).ready(function () {
         $('.order-in-btn').click(function () {
+            var action = $(this).data('action');
             // 获取上传的文件
-            const file = $('#orderFile')[0].files[0];
-
+            const fileInput = $('#order_file')[0];
+            const file = fileInput.files[0];
             // 创建 FormData 对象，用于将文件数据发送到服务器
             const formData = new FormData();
-            formData.append('order_file', $('#orderFile')[0].files[0]);
+            formData.append('order_file', file);
+            formData.append('action', action);
             // 发送 AJAX 请求将文件数据发送到服务器
             $.ajax({
                 url: '/processing', // 服务器端处理上传的 URL
@@ -210,15 +259,16 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    alert('csv文件导入成功!');
+                    alert('订单导入成功!');
+                    location.reload(); // 刷新页面
                     // 可以根据服务器返回的响应执行其他操作
                 },
                 error: function (xhr, status, error) {
-                    alert('csv文件导入失败: ' + error);
+                    alert('订单导入失败: ' + error);
                     // 可以根据错误信息执行其他操作
                 }
             });
-        
+
         });
     });
 </script>
@@ -226,14 +276,14 @@
 <script>
     $(document).ready(function () {
         $('.weather-in-btn').click(function () {
+            var action = $(this).data('action');
             // 获取上传的文件
-            const fileInput = $('#weatherFile')[0];
+            const fileInput = $('#weather_file')[0];
             const file = fileInput.files[0];
-
             // 创建 FormData 对象，用于将文件数据发送到服务器
             const formData = new FormData();
             formData.append('weather_file', file);
-
+            formData.append('action', action);
             // 发送 AJAX 请求将文件数据发送到服务器
             $.ajax({
                 url: '/processing', // 服务器端处理上传的 URL
@@ -242,11 +292,12 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    alert('csv文件导入成功!');
+                    alert('天气导入成功!');
+                    location.reload(); // 刷新页面
                     // 可以根据服务器返回的响应执行其他操作
                 },
                 error: function (xhr, status, error) {
-                    alert('csv文件导入失败: ' + error);
+                    alert('天气导入失败: ' + error);
                     // 可以根据错误信息执行其他操作
                 }
             });
@@ -257,14 +308,14 @@
 <script>
     $(document).ready(function () {
         $('.section-in-btn').click(function () {
+            var action = $(this).data('action');
             // 获取上传的文件
-            const fileInput = $('#sectionFile')[0];
+            const fileInput = $('#section_file')[0];
             const file = fileInput.files[0];
-
             // 创建 FormData 对象，用于将文件数据发送到服务器
             const formData = new FormData();
             formData.append('section_file', file);
-            
+            formData.append('action', action);
             // 发送 AJAX 请求将文件数据发送到服务器
             $.ajax({
                 url: '/processing', // 服务器端处理上传的 URL
@@ -273,14 +324,47 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    alert('csv文件导入成功!');
+                    alert('路径导入成功!');
+                    location.reload(); // 刷新页面
                     // 可以根据服务器返回的响应执行其他操作
                 },
                 error: function (xhr, status, error) {
-                    alert('csv文件导入失败: ' + error);
+                    alert('路径导入失败: ' + error);
                     // 可以根据错误信息执行其他操作
                 }
             });
+        });
+    });
+</script>
+
+<script>
+    $('.query-order-btn').click(function (event) {
+        event.preventDefault(); // 阻止按钮默认点击事件
+        var action = $(this).data('action');
+        //获取表单
+        var year = $('#year').val();
+        var month = $('#month').val();
+        var day = $('#day').val();
+        
+        // 发送 AJAX 请求
+        $.ajax({
+            url: '/processing', // 后端 Flask 应用的路由
+            method: 'POST',
+            data: {
+                action: action,
+                year:year,
+                month: month,
+                day: day
+            },
+            success: function (response) {
+                // 处理成功响应，例如显示成功消息或刷新页面
+                alert('订单查询成功！');
+                location.reload(); // 刷新页面
+            },
+            error: function (xhr, status, error) {
+                // 处理请求失败，例如显示错误消息
+                alert('用户查询失败，请重试！');
+            }
         });
     });
 </script>

@@ -12,7 +12,7 @@ DB_CONFIG = {
     'user': 'root',
     'password': '',
     'charset': 'utf8',
-    'db': 'trip'
+    'db': 'tmpsql'
 }
 # 数据库连接函数
 def connect_db():
@@ -53,14 +53,14 @@ def import_csv_to_db1(file_path):
                 orderid, ata, distance, simpleeta, driverid, sliceid, date = row
                 
                 # 构造插入数据的 SQL 语句
-                sql = "INSERT INTO `order` (orderid, ata, distance, simpleeta, driverid, sliceid, date) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO `order` (orderid, ata, distance, simpleeta, driverid, sliceid, date, create_at) VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())"
                 # 执行 SQL 插入操作
                 execute_query(sql, (orderid, ata, distance, simpleeta, driverid, sliceid, date))
         
-        flash('导入成功')
+        print('导入成功')
     except Exception as e:
-        flash('导入失败，请检查文件格式')
-        print('Error:', e)
+        
+        print('导入失败,Error:', e)
 # 导入数据weather
 def import_csv_to_db2(file_path):
     try:
@@ -73,14 +73,14 @@ def import_csv_to_db2(file_path):
                 date,weather,hightemp,lowtemp = row
                 
                 # 构造插入数据的 SQL 语句
-                sql = "INSERT INTO `order` (date,weather,hightemp,lowtemp) VALUES (%s, %s, %s, %s)"
+                sql = "INSERT INTO `weather` (date,weather,hightemp,lowtemp,create_at) VALUES (%s, %s, %s, %s,NOW())"
                 # 执行 SQL 插入操作
                 execute_query(sql, (date,weather,hightemp,lowtemp))
         
-        flash('导入成功')
+        print('导入成功')
     except Exception as e:
-        flash('导入失败，请检查文件格式')
-        print('Error:', e)
+        print('导入失败,Error:', e)
+        
 # 导入数据intersection
 def import_csv_to_db3(file_path):
     try:
@@ -93,22 +93,28 @@ def import_csv_to_db3(file_path):
                 crossid,crosstime,entranceid,exitid,orderid = row
                 
                 # 构造插入数据的 SQL 语句
-                sql = "INSERT INTO `order` (crossid,crosstime,entranceid,exitid,orderid) VALUES (%s, %s, %s, %s, %s)"
+                sql = "INSERT INTO `intersection` (crossid,crosstime,entranceid,exitid,orderid,create_at) VALUES (%s, %s, %s, %s, %s,NOW())"
                 # 执行 SQL 插入操作
                 execute_query(sql, (crossid,crosstime,entranceid,exitid,orderid))
-        
-        flash('导入成功')
+        print('导入成功')
     except Exception as e:
-        flash('导入失败，请检查文件格式')
-        print('Error:', e)
+        print('导入失败,Error:', e)
 
 
 # 主界面
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
-def index():
-    
-    return render_template('index.html')
+def index():    
+    if request.method == 'POST':
+        file = request.files['order_file']
+        # 保存上传的文件到服务器
+        file_path = 'uploads/' + file.filename
+        file.save(file_path)
+        # 导入 CSV 文件到数据库
+        import_csv_to_db1(file_path)
+        return redirect('/index')
+    else:
+        return render_template('index.html')
 
 # 用户管理界面
 @app.route('/manage',methods=['GET', 'POST'])
@@ -123,7 +129,7 @@ def manage():
                 # 执行删除数据库中数据的操作
                 sql = "DELETE FROM member WHERE username=%s"
                 execute_query(sql, [id])
-                flash("删除成功")
+                print("删除成功")
                 
                 return 'OK'
             else:
@@ -146,7 +152,7 @@ def manage():
                 # 执行 SQL 插入语句
                 execute_query(sql, data)
                 
-                flash("添加用户成功")
+                print("添加用户成功")
                 return 'OK'  # 返回成功响应
             else:
                 
@@ -168,6 +174,7 @@ def manage():
 # 数据处理界面
 @app.route('/processing', methods=['GET', 'POST'])
 def processing():
+    
     if request.method == 'POST':
         # 获取按钮的名称或值
         action = request.form.get('action')
@@ -177,11 +184,9 @@ def processing():
             # 保存上传的文件到服务器
             file_path = 'uploads/' + file.filename
             file.save(file_path)
-        
             # 导入 CSV 文件到数据库
             import_csv_to_db1(file_path)
-
-            return redirect('/processing')
+            return 'OK'
             
         elif action == 'in-two':
             file = request.files['weather_file']
@@ -192,7 +197,7 @@ def processing():
             # 导入 CSV 文件到数据库
             import_csv_to_db2(file_path)
 
-            return redirect('/processing')
+            return 'OK'
         elif action == 'in-three':
             file = request.files['section_file']
             # 保存上传的文件到服务器
@@ -202,13 +207,42 @@ def processing():
             # 导入 CSV 文件到数据库
             import_csv_to_db3(file_path)
 
-            return redirect('/processing')
+            return 'OK'
+        elif action == 'query-order':
+            year=request.form.get('year')
+            month=request.form.get('month')
+            day=request.form.get('day')
+            if day:
+                sql = "SELECT * FROM `order` WHERE YEAR(date) = %s AND MONTH(date) = %s AND DAY(date) = %s"
+                data1 = execute_query(sql, [year,month,day])
+                sql2 = "SELECT * FROM `weather` ORDER BY create_at LIMIT 10"
+                data2 = execute_query(sql2)
+                sql3 = "SELECT * FROM `intersection` ORDER BY create_at LIMIT 10"
+                data3 = execute_query(sql3)
+                return render_template('processing.html',data1=data1,data2=data2,data3=data3)
+            else:
+                sql = "SELECT * FROM `order` WHERE YEAR(date) = %s AND MONTH(date) = %s"
+                data1 = execute_query(sql, [year,month])
+                sql2 = "SELECT * FROM `weather` ORDER BY create_at LIMIT 10"
+                data2 = execute_query(sql2)
+                sql3 = "SELECT * FROM `intersection` ORDER BY create_at LIMIT 10"
+                data3 = execute_query(sql3)
+                return render_template('processing.html',data1=data1,data2=data2,data3=data3)
+
+        else:
+            sql1 = "SELECT * FROM `order` ORDER BY create_at DESC LIMIT 10"
+            data1 = execute_query(sql1)
+            sql2 = "SELECT * FROM `weather` ORDER BY create_at LIMIT 10"
+            data2 = execute_query(sql2)
+            sql3 = "SELECT * FROM `intersection` ORDER BY create_at LIMIT 10"
+            data3 = execute_query(sql3)
+            return render_template('processing.html',data1=data1,data2=data2,data3=data3)
     else:
         sql1 = "SELECT * FROM `order` ORDER BY create_at DESC LIMIT 10"
         data1 = execute_query(sql1)
-        sql2 = "SELECT * FROM `weather` ORDER BY create_at DESC LIMIT 10"
+        sql2 = "SELECT * FROM `weather` ORDER BY create_at LIMIT 10"
         data2 = execute_query(sql2)
-        sql3 = "SELECT * FROM `intersection` ORDER BY create_at DESC LIMIT 10"
+        sql3 = "SELECT * FROM `intersection` ORDER BY create_at LIMIT 10"
         data3 = execute_query(sql3)
         return render_template('processing.html',data1=data1,data2=data2,data3=data3)
 

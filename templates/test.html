@@ -1,0 +1,106 @@
+<!-- 天气导入组件 -->
+<div class="accordion-item">
+    <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+            天气导入
+        </button>
+    </h2>
+    <!-- 主体 -->
+    <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+        <div class="accordion-body">
+            <!-- 头部 -->
+            <div class="weather-in">
+                <div class="banner-in ">
+                    <label for="weatherFile" class="form-label">天气导入</label>
+                    <label class="download-example">请参考样例格式上传文件</label>
+                    <a href="../static/example/example_weather.CSV" id="download-exam2" class="btn btn-primary"
+                        download>参考样例</a>
+                </div>
+
+                <input class="form-control file-in" type="file" id="weather_file" accept=".csv" name="weather_file">
+                <button class="btn btn-primary weather-in-btn" type="submit" data-action="in-two">导入</button>
+            </div>
+            <!-- 表格 -->
+            <div class="order-list">
+                <!-- 表格控件（无边框，可悬停，有切换页码） -->
+                <div class="row">
+                    <table class="table table-striped table-hover table-responsive text-center">
+                        <thead>
+                            <tr>
+                                <th scope="col">日期</th>
+                                <th scope="col">天气情况</th>
+                                <th scope="col">最高气温</th>
+                                <th scope="col">最低气温</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data2 %}
+                            <tr data-id="{{ row.date }}">
+                                <td style="vertical-align: middle;font-size:large">{{ row.date }}</td>
+                                <td style="vertical-align: middle;font-size:large">{{ row.weather }}</td>
+                                <td style="vertical-align: middle;font-size:large">{{ row.hightemp }}</td>
+                                <td style="vertical-align: middle;font-size:large">{{ row.lowtemp }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 路径导入组件 -->
+<div class="accordion-item">
+    <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+            路径导入
+        </button>
+    </h2>
+    <!-- 路径导入主体部分 -->
+    <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+        <div class="accordion-body">
+            <!-- 头部 -->
+            <div class="section-in">
+                <div class="banner-in">
+                    <label for="sectionFile" class="form-label">路径导入</label>
+                    <label class="download-example">请参考样例格式上传文件</label>
+                    <a href="../static/example/example_intersection.CSV" id="download-exam3" class="btn btn-primary"
+                        download>参考样例</a>
+                </div>
+
+                <input class="form-control file-in" type="file" id="section_file" accept=".csv" name="section_file">
+                <button class="btn btn-primary section-in-btn" type="submit" data-action="in-three">导入</button>
+            </div>
+            <!-- 表格 -->
+            <div class="order-list">
+                <!-- 表格控件（无边框，可悬停，有切换页码） -->
+                <div class="row">
+                    <table class="table table-striped table-hover table-responsive text-center">
+                        <thead>
+                            <tr>
+                                <th scope="col">红绿灯路口编号</th>
+                                <th scope="col">路口通行时间</th>
+                                <th scope="col">驶入路口编号</th>
+                                <th scope="col">驶出路口编号</th>
+                                <th scope="col">订单编号</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data3 %}
+                            <tr data-id="{{ row.create_at }}">
+                                <td style="vertical-align: middle;font-size:large">{{ row.crossid }}</td>
+                                <td style="vertical-align: middle;font-size:large">{{ row.crosstime }}</td>
+                                <td style="vertical-align: middle;font-size:large">{{ row.entranceid }}</td>
+                                <td style="vertical-align: middle;font-size:large">{{ row.exitid }}</td>
+                                <td style="vertical-align: middle;font-size:large">{{ row.orderid }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
