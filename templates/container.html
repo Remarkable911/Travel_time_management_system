@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}行程时间管理系统{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static',filename='css/common/reset.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/tailwind.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/common/tailwind.css') }}">
     <link rel="stylesheet"
         href="{{ url_for('static',filename='plugins/bootstrap-5.3.0-alpha1-dist/css/bootstrap.css') }}">
     {% block extcss %}
@@ -35,8 +35,8 @@
             </ul>
 
             <div class="col-md-3 text-end">
-                <button type="button" class="btn btn-outline-primary me-2">登录</button>
-                <button type="button" class="btn btn-primary">注册</button>
+                <button href="/login" type="button" class="btn btn-outline-primary me-2">登录</button>
+                <button href="/register" type="button" class="btn btn-primary">注册</button>
             </div>
         </header>
         <div class="mainbox">

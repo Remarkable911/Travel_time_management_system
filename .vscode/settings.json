@@ -12,12 +12,14 @@
     "extjs",
     "hightemp",
     "javascrpit",
+    "jsonify",
     "layui",
     "linkarrivalstatus",
     "linkcurrentstatus",
     "linkid",
     "linkratio",
     "linktime",
+    "livereload",
     "lowtemp",
     "lstm",
     "mainbox",
@@ -30,7 +32,8 @@
     "simpleeta",
     "sliceid",
     "tailwindcss",
-    "tmpsql"
+    "tmpsql",
+    "trajectorylink"
   ],
   "emmet.syntaxProfiles": {
     "vue-html": "html",

@@ -1,22 +1,101 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'container.html' %}
+{% block title %}
+行程预测-行程时间管理系统
+{% endblock %}
+{% block extcss %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>行程时间预测-行程时间管理系统</title>
-    <link rel="stylesheet" href="/static/plugins/bootstrap-5.3.0-alpha1-dist/css/bootstrap.css">
-    <link rel="stylesheet" href="/static/css/common/reset.css">
-    <link rel="stylesheet" href="/static/css/lstm.css">
-</head>
+{% endblock %}
+{% block mainbox %}
 
-<body>
-    <!-- 实现的功能-行程时间预测 -->
+<h2 class=" text-center mb-2">行程时间预测</h2>
+<!-- 
+    丐版：我现在的trajectorylink表中，有8月1日的一部分link数据，
+    里面有通行时间，道路小段路况状态，
+    通过搜索linkid，取平均数显示该link的估计通行时间和路况状态。
+-->
+<div class="row mb-4 mt-4" id="form-query">
+    <form id="query-users">
+        <div class="row mb-4">
+            <div class="col mb-2 ml-3 flex">
+                <label for="linkid" class="col-form-label ">道路id：</label>
+                <div>
+                    <input type="text" class="form-control" name="linkid" id="linkid" placeholder="请输入道路id" required>
+                </div>
+            </div>
+            <div class="col mb-2 flex">
+                <label for="method" class="col-form-label ">请选择预测方法：</label>
+                <div>
+                    <select class="form-select" aria-label=".form-select example" id="method" name="method" required>
+                        <option selected disabled value="">请选择方法</option>
+                        <option value="1">平均值法</option>
+                        <option value="2">长短期记忆法</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col flex">
+                <div class="col mb-2">
+                    <button type="submit" class="btn btn-primary link-query" data-action="query-link"> 查询道路情况
+                    </button>
+                </div>
+                <div class=" col mb-2">
+                    <button type="reset" class="btn btn-warning"> 重置 </button>
+                </div>
+            </div>
+    </form>
+</div>
+<h4 id="result" class="text-center mb-4"></h4>
+<h4 id="result2" class="text-center mb-4"></h4>
+<h4 id="result3" class="text-center mb-4"></h4>
 
 
 
 
-    <script src="/static/js/jquery-3.7.1.js"></script>
-    <script src="/static/plugins/bootstrap-5.3.0-alpha1-dist/js/bootstrap.js"></script>
-</body>
 
-</html>
+<!-- 
+        给他一个搜索框（给出起点和终点，预测方法），
+        结果是起点到终点的经过linkid和每一段link的时间。
+     -->
+{% endblock %}
+{% block extjs %}
+<script>
+    $('.link-query').click(function (event) {
+        event.preventDefault(); // 阻止按钮默认点击事件
+        var action = $(this).data('action');
+        var linkid = $('#linkid').val();
+        // 发送 AJAX 请求将文件数据发送到服务器
+        $.ajax({
+            url: '/forecast', // 服务器端处理上传的 URL
+            type: 'POST',
+            data: {
+                action: action,
+                linkid: linkid
+            },
+            success: function (response) {
+                $('#result').text('道路小段' + response.linkid + '的估计通行时间是' + response.average_linktime
+                    .toFixed(6));
+                
+                //如果response.average_link为1,则显示畅通，如果为2，则显示缓行，如果为3，则显示拥堵
+                if (response.average_link == 1) {
+                    $('#result2').text('道路小段' + response.linkid + '的估计路况状态是畅通')
+                } else if (response.average_link == 2) {
+                    $('#result2').text('道路小段' + response.linkid + '的估计路况状态是缓行')
+                } else if (response.average_link == 3) {
+                    $('#result2').text('道路小段' + response.linkid + '的估计路况状态是拥堵')
+                } else {
+                    $('#result2').text('道路小段' + response.linkid + '的估计路况状态是未知')
+                }
+                $('#result3').text('道路小段' + response.linkid + '的估计通行比例是' + response.average_ratio
+                    .toFixed(6));
+
+            },
+            error: function (xhr, status, error) {
+
+                // 可以根据错误信息执行其他操作
+            }
+        });
+
+    });
+</script>
+
+
+{% endblock %}

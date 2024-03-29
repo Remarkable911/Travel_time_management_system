@@ -1,120 +1,17 @@
-import pymysql
-from flask import Flask, render_template, request, redirect, flash
-import csv
+from flask import Flask, render_template, request, redirect, flash, jsonify
+from db import execute_query
+from import_csv import import_csv_to_db1, import_csv_to_db2, import_csv_to_db3
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '12345'
-
-# 数据库连接配置
-DB_CONFIG = {
-    'host': '127.0.0.1',
-    'port': 3306,
-    'user': 'root',
-    'password': '',
-    'charset': 'utf8',
-    'db': 'tmpsql'
-}
-# 数据库连接函数
-def connect_db():
-    return pymysql.connect(**DB_CONFIG)
-# 执行sql语句
-def execute_query(sql, params=None, fetchone=False):
-    # 连接数据库
-    conn = connect_db()
-    # 创建游标对象，使用字典格式返回查询结果
-    cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
-    # 执行SQL查询
-    cursor.execute(sql, params)
-    # 根据fetchone参数选择返回结果的方式
-    if fetchone:
-        # 返回一条查询结果
-        result = cursor.fetchone()
-    else:
-        # 返回所有查询结果
-        result = cursor.fetchall()
-    # 提交事务
-    conn.commit()
-    # 关闭游标
-    cursor.close()
-    # 关闭数据库连接
-    conn.close()
-    # 返回查询结果
-    return result
-
-# 导入数据order
-def import_csv_to_db1(file_path):
-    try:
-        with open(file_path, 'r', encoding='utf-8') as csv_file:
-            csv_reader = csv.reader(csv_file)
-            next(csv_reader)  # 跳过标题行
-            
-            for row in csv_reader:
-                # 解析 CSV 文件中的每一行数据
-                orderid, ata, distance, simpleeta, driverid, sliceid, date = row
-                
-                # 构造插入数据的 SQL 语句
-                sql = "INSERT INTO `order` (orderid, ata, distance, simpleeta, driverid, sliceid, date, create_at) VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())"
-                # 执行 SQL 插入操作
-                execute_query(sql, (orderid, ata, distance, simpleeta, driverid, sliceid, date))
-        
-        print('导入成功')
-    except Exception as e:
-        
-        print('导入失败,Error:', e)
-# 导入数据weather
-def import_csv_to_db2(file_path):
-    try:
-        with open(file_path, 'r', encoding='utf-8') as csv_file:
-            csv_reader = csv.reader(csv_file)
-            next(csv_reader)  # 跳过标题行
-            
-            for row in csv_reader:
-                # 解析 CSV 文件中的每一行数据
-                date,weather,hightemp,lowtemp = row
-                
-                # 构造插入数据的 SQL 语句
-                sql = "INSERT INTO `weather` (date,weather,hightemp,lowtemp,create_at) VALUES (%s, %s, %s, %s,NOW())"
-                # 执行 SQL 插入操作
-                execute_query(sql, (date,weather,hightemp,lowtemp))
-        
-        print('导入成功')
-    except Exception as e:
-        print('导入失败,Error:', e)
-        
-# 导入数据intersection
-def import_csv_to_db3(file_path):
-    try:
-        with open(file_path, 'r', encoding='utf-8') as csv_file:
-            csv_reader = csv.reader(csv_file)
-            next(csv_reader)  # 跳过标题行
-            
-            for row in csv_reader:
-                # 解析 CSV 文件中的每一行数据
-                crossid,crosstime,entranceid,exitid,orderid = row
-                
-                # 构造插入数据的 SQL 语句
-                sql = "INSERT INTO `intersection` (crossid,crosstime,entranceid,exitid,orderid,create_at) VALUES (%s, %s, %s, %s, %s,NOW())"
-                # 执行 SQL 插入操作
-                execute_query(sql, (crossid,crosstime,entranceid,exitid,orderid))
-        print('导入成功')
-    except Exception as e:
-        print('导入失败,Error:', e)
 
 
 # 主界面
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():    
-    if request.method == 'POST':
-        file = request.files['order_file']
-        # 保存上传的文件到服务器
-        file_path = 'uploads/' + file.filename
-        file.save(file_path)
-        # 导入 CSV 文件到数据库
-        import_csv_to_db1(file_path)
-        return redirect('/index')
-    else:
-        return render_template('index.html')
+    return render_template('index.html')
 
 # 用户管理界面
 @app.route('/manage',methods=['GET', 'POST'])
@@ -146,7 +43,7 @@ def manage():
             status = request.form.get('state')
             # 构造 SQL 插入语句
             sql = "INSERT INTO member (username, account, gender, phone, email, role, status) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-            data = (username, account, gender, phone, email, role, status)
+            data = execute_query(sql, [username, account, gender, phone, email, role, status])
             
             if username:
                 # 执行 SQL 插入语句
@@ -203,11 +100,13 @@ def processing():
             # 保存上传的文件到服务器
             file_path = 'uploads/' + file.filename
             file.save(file_path)
-        
+            print(file_path)
             # 导入 CSV 文件到数据库
             import_csv_to_db3(file_path)
 
             return 'OK'
+        
+        # 这个查询功能还不完善
         elif action == 'query-order':
             year=request.form.get('year')
             month=request.form.get('month')
@@ -232,19 +131,49 @@ def processing():
         else:
             sql1 = "SELECT * FROM `order` ORDER BY create_at DESC LIMIT 10"
             data1 = execute_query(sql1)
-            sql2 = "SELECT * FROM `weather` ORDER BY create_at LIMIT 10"
+            sql2 = "SELECT * FROM `weather` ORDER BY create_at DESC LIMIT 10"
             data2 = execute_query(sql2)
-            sql3 = "SELECT * FROM `intersection` ORDER BY create_at LIMIT 10"
+            sql3 = "SELECT * FROM `intersection` ORDER BY create_at DESC LIMIT 10"
             data3 = execute_query(sql3)
             return render_template('processing.html',data1=data1,data2=data2,data3=data3)
     else:
         sql1 = "SELECT * FROM `order` ORDER BY create_at DESC LIMIT 10"
         data1 = execute_query(sql1)
-        sql2 = "SELECT * FROM `weather` ORDER BY create_at LIMIT 10"
+        sql2 = "SELECT * FROM `weather` ORDER BY create_at DESC LIMIT 10"
         data2 = execute_query(sql2)
-        sql3 = "SELECT * FROM `intersection` ORDER BY create_at LIMIT 10"
+        sql3 = "SELECT * FROM `intersection` ORDER BY create_at DESC LIMIT 10"
         data3 = execute_query(sql3)
         return render_template('processing.html',data1=data1,data2=data2,data3=data3)
+
+
+
+
+# 预测界面
+@app.route('/forecast', methods=['GET', 'POST'])
+def forecast():
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'query-link':
+            linkid = request.form.get('linkid')
+            # 查询数据库获取数据
+            sql = "SELECT AVG(linktime) AS average_linktime FROM trajectorylink WHERE linkid = %s"
+            data = execute_query(sql, [linkid])
+            sql ="SELECT ROUND(AVG((linkcurrentstatus + linkarrivalstatus) / 2)) AS average_status FROM trajectorylink WHERE linkid = %s"
+            data1 = execute_query(sql,[linkid])
+            sql = "SELECT AVG(linkratio) AS average_ratio FROM trajectorylink WHERE linkid = %s"
+            data2 = execute_query(sql, [linkid])
+            # 将查询结果封装在一个字典中
+            response_data = {
+                'linkid': linkid,
+                'average_linktime': data[0]['average_linktime'],
+                'average_status': data1[0]['average_status'],
+                'average_ratio': data2[0]['average_ratio']
+            }
+            # 返回 JSON 格式的响应数据
+            return jsonify(response_data)
+    else:
+        
+        return render_template('forecast.html')
 
 # 登录界面
 @app.route('/login', methods=['GET', 'POST'])
@@ -282,5 +211,5 @@ def register():
 
     return render_template('register.html')
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()
