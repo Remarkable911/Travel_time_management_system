@@ -6,6 +6,8 @@
 <script src="../static/js/echarts.js"></script>
 {% endblock %}
 {% block mainbox %}
+<button class="btn btn-primary" id="getDataBtn">更新数据</button>
+
 <div id="linknet" style="width: 800px; height: 600px;"></div>
 {% endblock %}
 {% block extjs %}
@@ -17,14 +19,16 @@
         if (params.dataType === 'node') {
             var nodeName = params.data.name;
             // 发送点击节点信息到后台
-            $.post('/handle_node_click', { nodeName: nodeName }, function (response) {
-                
+            $.post('/handle_node_click', {
+                nodeName: nodeName
+            }, function (response) {
+
             });
         }
     });
     myChart.showLoading();
     // 加载本地数据文件
-    $.getJSON('/static/data/data.pkl', function(data) {
+    $.getJSON('/static/data/data.json', function (data) {
         myChart.hideLoading();
         // 绘制路网图
         var option = {
@@ -32,8 +36,8 @@
             // 设置图表标题
             title: {
                 text: '轨迹路线图',
-                top:'bottom',
-                left:'right'
+                top: 'bottom',
+                left: 'right'
             },
             // 设置图表数据
             series: [{
@@ -43,7 +47,7 @@
                 // 设置节点数据
                 force: {
                     // 调整节点之间的排斥力，从而调整密度
-                    repulsion: 150, // 你可以根据需要调整这个值来改变密度
+                    repulsion: 200, // 你可以根据需要调整这个值来改变密度
                 },
                 data: data.nodes.map(function (node) {
                     return {
@@ -67,62 +71,16 @@
         myChart.setOption(option);
     });
 </script>
-
 <script>
-    // 发送 AJAX 请求获取数据
-    var myChart = echarts.init(document.getElementById('linknet'));
-    // 监听图表点击事件
-    myChart.on('click', function (params) {
-        if (params.dataType === 'node') {
-            var nodeName = params.data.name;
-            // 发送点击节点信息到后台
-            $.post('/handle_node_click', { nodeName: nodeName }, function (response) {
-                
+    // 当页面加载完毕时执行
+    $(document).ready(function () {
+        // 给按钮绑定点击事件
+        $('#getDataBtn').click(function () {
+            // 发送 AJAX 请求触发 get_links_data() 函数
+            $.get('/get_links_data', function () {
+
             });
-        }
-    });
-    myChart.showLoading();
-    $.get('/get_links_data', function(data) {
-        myChart.hideLoading();
-        // 绘制路网图
-        var option = {
-            renderer: 'webgl', // 设置渲染器为 WebGL
-            // 设置图表标题
-            title: {
-                text: '轨迹路线图',
-                top:'bottom',
-                left:'right'
-            },
-            // 设置图表数据
-            series: [{
-                type: 'graph',
-                layout: 'force',
-                roam: true, // 开启鼠标缩放和平移漫游功能
-                // 设置节点数据
-                force: {
-                    // 调整节点之间的排斥力，从而调整密度
-                    repulsion: 150, // 你可以根据需要调整这个值来改变密度
-                },
-                data: data.nodes.map(function (node) {
-                    return {
-                        // 节点名称
-                        name: node.name,
-                        // 设置节点标签
-                        label: {
-                            show: true, // 是否显示标签
-                            position: 'top', // 标签位置，可以是 'top'、'bottom'、'left'、'right'、'inside'、'insideLeft'、'insideRight'、'insideTop'、'insideBottom'、'insideTopLeft'、'insideBottomLeft'、'insideTopRight'、'insideBottomRight'、'leftTop'、'leftBottom'、'rightTop'、'rightBottom'
-                            formatter: '{b}', // 标签内容格式器，{a}、{b}、{c} 分别表示数据系列名、数据名、数据值
-                            fontSize: 12, // 标签字体大小
-                            fontWeight: 'bold' // 标签字体粗细，可以是 'normal'、'bold'、'bolder'、'lighter' 或数字
-                        }
-                    };
-                }),
-                // 设置边数据
-                edges: data.edges
-            }]
-        };
-        // 使用刚指定的配置项和数据显示图表
-        myChart.setOption(option);
+        });
     });
 </script>
 {% endblock %}

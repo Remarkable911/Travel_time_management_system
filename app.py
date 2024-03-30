@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, flash, jsonify
 from db import execute_query
 from import_csv import import_csv_to_db1, import_csv_to_db2, import_csv_to_db3
-import pickle,os
+import os,json
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '12345'
 
@@ -25,44 +25,40 @@ def avglinks():
     """
     execute_query(sql)
 
+
+
 # 路网数据
 @app.route('/get_links_data', methods=['GET'])
 def get_links_data():
-    sql = "SELECT * FROM nextlinks limit 1500"
+    sql = "SELECT * FROM nextlinks ORDER BY RAND() LIMIT 2000"
     links_data = execute_query(sql)
-    # links_data=[{'linkid':1,'nextlink1':2,'nextlink2':3,'nextlink3':4,'nextlink4':5,'nextlink5':6,'nextlink6':7,'nextlink7':8}
-    #            ,{'linkid':2,'nextlink1':3,'nextlink2':4,'nextlink3':5,'nextlink4':6,'nextlink5':7,'nextlink6':8,'nextlink7':9}
-    #            ,{'linkid':3,'nextlink1':4,'nextlink2':5,'nextlink3':6,'nextlink4':7,'nextlink5':8,'nextlink6':9,'nextlink7':10}]
     # 构造节点和边的数据
     nodes_set = set()
     edges = []
+    # 获取所有nextlink列的字段名
+    nextlink_columns = ['nextlink1', 'nextlink2', 'nextlink3', 'nextlink4', 'nextlink5', 'nextlink6', 'nextlink7']
     for row in links_data:
         linkid = row['linkid']
-        nextlinks = [row['nextlink1'], row['nextlink2'], row['nextlink3'],
-                     row['nextlink4'], row['nextlink5'], row['nextlink6'],
-                     row['nextlink7']]
+        # 获取该行所有nextlink的值
+        nextlinks = [row[col] for col in nextlink_columns if row[col] is not None]
         # 将 linkid 和 nextlink 添加到集合中
         nodes_set.add(str(linkid))
-        for nextlink in nextlinks:
-            if nextlink is not None:
-                nodes_set.add(str(nextlink))
-                edges.append({'source': str(linkid), 'target': str(nextlink)})
-    
+        nodes_set.update(map(str, nextlinks))
+        # 将 linkid 和 nextlink 组合成边
+        edges.extend({'source': str(linkid), 'target': str(nextlink)} for nextlink in nextlinks)
     # 将集合中的元素转换为节点列表
     nodes = [{'name': node} for node in nodes_set]
     # 静态目录的路径
-    static_dir = os.path.join('tmpproject', 'static', 'data')
+    static_dir = os.path.join('static', 'data')
     # 文件路径
-    filename = os.path.join(static_dir, 'data.pkl')
+    filename = os.path.join(static_dir, 'data.json')
     # 返回构造好的数据
     data={'nodes': nodes, 'edges': edges}
-    # 如果文件已存在，先删除
-    if os.path.exists(filename):
-        os.remove(filename)
-
     # 保存数据到文件
-    with open(filename, 'wb') as f:
-        pickle.dump(data, f)
+    with open(filename, 'w') as f:
+        json.dump(data, f)
+    return {'success': True}
+
     
 
 # 主界面
