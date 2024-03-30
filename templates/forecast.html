@@ -19,13 +19,15 @@
             <div class="col mb-2 ml-3 flex">
                 <label for="startlinkid" class="col-form-label ">路段起点：</label>
                 <div>
-                    <input type="text" class="form-control" name="startlinkid" id="startlinkid" placeholder="请输入起点路段" required>
+                    <input type="text" class="form-control" name="startlinkid" id="startlinkid" placeholder="请输入起点路段"
+                        required>
                 </div>
             </div>
             <div class="col mb-2 ml-3 flex">
                 <label for="endlinkid" class="col-form-label ">路段终点：</label>
                 <div>
-                    <input type="text" class="form-control" name="endlinkid" id="endlinkid" placeholder="请输入终点路段" required>
+                    <input type="text" class="form-control" name="endlinkid" id="endlinkid" placeholder="请输入终点路段"
+                        required>
                 </div>
             </div>
             <div class="col mb-2 flex">
@@ -51,7 +53,6 @@
 </div>
 <h4 id="result" class="text-center mb-4"></h4>
 <h4 id="result2" class="text-center mb-4"></h4>
-<h4 id="result3" class="text-center mb-4"></h4>
 
 
 
@@ -80,26 +81,15 @@
                 endlinkid: endlinkid
             },
             success: function (response) {
-                $('#result').text('从道路小段' + response.startlinkid +'到道路小段'+response.endlinkid+ '的估计通行时间是' + response.average_linktime
-                    .toFixed(6));
+                // 请求成功时执行的操作
+                console.log('请求成功！服务器响应：', response);
                 
-                //如果response.average_link为1,则显示畅通，如果为2，则显示缓行，如果为3，则显示拥堵
-                if (response.average_link == 1) {
-                    $('#result2').text('从道路小段' + response.startlinkid +'到道路小段'+response.endlinkid+ '的估计路况状态是畅通')
-                } else if (response.average_link == 2) {
-                    $('#result2').text('从道路小段' + response.startlinkid +'到道路小段'+response.endlinkid+ '的估计路况状态是缓行')
-                } else if (response.average_link == 3) {
-                    $('#result2').text('从道路小段' + response.startlinkid +'到道路小段'+response.endlinkid+ '的估计路况状态是拥堵')
-                } else if(response.average_link == 0) {
-                    $('#result2').text('从道路小段' + response.startlinkid +'到道路小段'+response.endlinkid+ '的估计路况状态是未知')
-                }else{
-                    $('#result2').text('错误！')
-                }
-                $('#result3').text('从道路小段' + response.startlinkid +'到道路小段'+response.endlinkid+ '的估计通行比例是' + response.average_ratio
-                    .toFixed(6));
-
+                $('#result').text("起点路段：" + response.startlinkid+ "，终点路段：" + response.endlinkid+"的预测时间："+response.average_linktime.toFixed(6));
+                $('#result2').text("经过路段"+response.path)
             },
             error: function (xhr, status, error) {
+                // 请求失败时执行的操作
+                console.error('请求失败！错误信息：', error);
 
                 // 可以根据错误信息执行其他操作
             }

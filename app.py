@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, flash, jsonify
 from db import execute_query
 from import_csv import import_csv_to_db1, import_csv_to_db2, import_csv_to_db3
 import os,json
+import networkx as nx
+import pickle
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '12345'
 
@@ -208,22 +210,29 @@ def forecast():
     if request.method == 'POST':
         action = request.form.get('action')
         if action == 'query-link':
-            linkid = request.form.get('linkid')
-            # 查询数据库获取数据
-            sql = "SELECT AVG(linktime) AS average_linktime FROM trajectorylink WHERE linkid = %s"
-            data = execute_query(sql, [linkid])
-            sql ="SELECT ROUND(AVG((linkcurrentstatus + linkarrivalstatus) / 2)) AS average_status FROM trajectorylink WHERE linkid = %s"
-            data1 = execute_query(sql,[linkid])
-            sql = "SELECT AVG(linkratio) AS average_ratio FROM trajectorylink WHERE linkid = %s"
-            data2 = execute_query(sql, [linkid])
-            # 将查询结果封装在一个字典中
+            startlinkid = request.form.get('startlinkid')
+            endlinkid = request.form.get('endlinkid')
+            # 定义图数据文件路径
+            file_path = os.path.join("static", "data", "graph_data.gpickle")
+            # 加载图数据
+            with open(file_path, 'rb') as f:
+                G = pickle.load(f)
+            # 计算节点 1 到节点 4 的最短路径和最短距离
+            shortest_path = nx.shortest_path(G, source=startlinkid , target=endlinkid, weight='weight')
+            shortest_distance = nx.shortest_path_length(G, source=startlinkid, target=endlinkid, weight='weight')
+            distance = shortest_distance
+            if distance == float('inf'):
+                distance='Infinity'
+            print("Shortest Path:", shortest_path)
+            print("Shortest Distance:", distance)
             response_data = {
-                'linkid': linkid,
-                'average_linktime': data[0]['average_linktime'],
-                'average_status': data1[0]['average_status'],
-                'average_ratio': data2[0]['average_ratio']
+                'startlinkid': startlinkid,
+                'endlinkid': endlinkid,
+                'average_linktime': distance,
+                'path': shortest_path,
             }
             # 返回 JSON 格式的响应数据
+            print(response_data)
             return jsonify(response_data)
     else:
         
