@@ -1,11 +1,69 @@
 from flask import Flask, render_template, request, redirect, flash, jsonify
 from db import execute_query
 from import_csv import import_csv_to_db1, import_csv_to_db2, import_csv_to_db3
-
-
+import pickle,os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '12345'
 
+# 结点信息
+@app.route('/handle_node_click', methods=['GET','POST'])
+def handle_node_click():
+    if request.method == 'POST':
+        linkid=request.form['nodeName']
+        pass
+
+# 如果link数据有变化时，更新linkavg表
+@app.route('/avglinks', methods=['GET'])
+def avglinks():
+    sql =""""
+    INSERT INTO linkavg (linkid, linkavgtime, avgstatus)
+    SELECT linkid, AVG(linktime) AS avg_linktime, ROUND(AVG((linkcurrentstatus + linkarrivalstatus) / 2)) AS avg_status
+    FROM trajectorylink
+    GROUP BY linkid
+    ON CONFLICT(linkid)
+    DO UPDATE SET linkavgtime = excluded.linkavgtime, avgstatus = excluded.avgstatus;
+    """
+    execute_query(sql)
+
+# 路网数据
+@app.route('/get_links_data', methods=['GET'])
+def get_links_data():
+    sql = "SELECT * FROM nextlinks limit 1500"
+    links_data = execute_query(sql)
+    # links_data=[{'linkid':1,'nextlink1':2,'nextlink2':3,'nextlink3':4,'nextlink4':5,'nextlink5':6,'nextlink6':7,'nextlink7':8}
+    #            ,{'linkid':2,'nextlink1':3,'nextlink2':4,'nextlink3':5,'nextlink4':6,'nextlink5':7,'nextlink6':8,'nextlink7':9}
+    #            ,{'linkid':3,'nextlink1':4,'nextlink2':5,'nextlink3':6,'nextlink4':7,'nextlink5':8,'nextlink6':9,'nextlink7':10}]
+    # 构造节点和边的数据
+    nodes_set = set()
+    edges = []
+    for row in links_data:
+        linkid = row['linkid']
+        nextlinks = [row['nextlink1'], row['nextlink2'], row['nextlink3'],
+                     row['nextlink4'], row['nextlink5'], row['nextlink6'],
+                     row['nextlink7']]
+        # 将 linkid 和 nextlink 添加到集合中
+        nodes_set.add(str(linkid))
+        for nextlink in nextlinks:
+            if nextlink is not None:
+                nodes_set.add(str(nextlink))
+                edges.append({'source': str(linkid), 'target': str(nextlink)})
+    
+    # 将集合中的元素转换为节点列表
+    nodes = [{'name': node} for node in nodes_set]
+    # 静态目录的路径
+    static_dir = os.path.join('tmpproject', 'static', 'data')
+    # 文件路径
+    filename = os.path.join(static_dir, 'data.pkl')
+    # 返回构造好的数据
+    data={'nodes': nodes, 'edges': edges}
+    # 如果文件已存在，先删除
+    if os.path.exists(filename):
+        os.remove(filename)
+
+    # 保存数据到文件
+    with open(filename, 'wb') as f:
+        pickle.dump(data, f)
+    
 
 # 主界面
 @app.route('/', methods=['GET', 'POST'])

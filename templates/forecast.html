@@ -17,13 +17,19 @@
     <form id="query-users">
         <div class="row mb-4">
             <div class="col mb-2 ml-3 flex">
-                <label for="linkid" class="col-form-label ">道路id：</label>
+                <label for="startlinkid" class="col-form-label ">路段起点：</label>
                 <div>
-                    <input type="text" class="form-control" name="linkid" id="linkid" placeholder="请输入道路id" required>
+                    <input type="text" class="form-control" name="startlinkid" id="startlinkid" placeholder="请输入起点路段" required>
+                </div>
+            </div>
+            <div class="col mb-2 ml-3 flex">
+                <label for="endlinkid" class="col-form-label ">路段终点：</label>
+                <div>
+                    <input type="text" class="form-control" name="endlinkid" id="endlinkid" placeholder="请输入终点路段" required>
                 </div>
             </div>
             <div class="col mb-2 flex">
-                <label for="method" class="col-form-label ">请选择预测方法：</label>
+                <label for="method" class="col-form-label ">预测方法：</label>
                 <div>
                     <select class="form-select" aria-label=".form-select example" id="method" name="method" required>
                         <option selected disabled value="">请选择方法</option>
@@ -34,7 +40,7 @@
             </div>
             <div class="col flex">
                 <div class="col mb-2">
-                    <button type="submit" class="btn btn-primary link-query" data-action="query-link"> 查询道路情况
+                    <button type="submit" class="btn btn-primary link-query" data-action="query-link"> 查询
                     </button>
                 </div>
                 <div class=" col mb-2">
@@ -61,30 +67,35 @@
     $('.link-query').click(function (event) {
         event.preventDefault(); // 阻止按钮默认点击事件
         var action = $(this).data('action');
-        var linkid = $('#linkid').val();
+        var startlinkid = $('#startlinkid').val();
+        var endlinkid = $('#endlinkid').val();
+
         // 发送 AJAX 请求将文件数据发送到服务器
         $.ajax({
             url: '/forecast', // 服务器端处理上传的 URL
             type: 'POST',
             data: {
                 action: action,
-                linkid: linkid
+                startlinkid: startlinkid,
+                endlinkid: endlinkid
             },
             success: function (response) {
-                $('#result').text('道路小段' + response.linkid + '的估计通行时间是' + response.average_linktime
+                $('#result').text('从道路小段' + response.startlinkid +'到道路小段'+response.endlinkid+ '的估计通行时间是' + response.average_linktime
                     .toFixed(6));
                 
                 //如果response.average_link为1,则显示畅通，如果为2，则显示缓行，如果为3，则显示拥堵
                 if (response.average_link == 1) {
-                    $('#result2').text('道路小段' + response.linkid + '的估计路况状态是畅通')
+                    $('#result2').text('从道路小段' + response.startlinkid +'到道路小段'+response.endlinkid+ '的估计路况状态是畅通')
                 } else if (response.average_link == 2) {
-                    $('#result2').text('道路小段' + response.linkid + '的估计路况状态是缓行')
+                    $('#result2').text('从道路小段' + response.startlinkid +'到道路小段'+response.endlinkid+ '的估计路况状态是缓行')
                 } else if (response.average_link == 3) {
-                    $('#result2').text('道路小段' + response.linkid + '的估计路况状态是拥堵')
-                } else {
-                    $('#result2').text('道路小段' + response.linkid + '的估计路况状态是未知')
+                    $('#result2').text('从道路小段' + response.startlinkid +'到道路小段'+response.endlinkid+ '的估计路况状态是拥堵')
+                } else if(response.average_link == 0) {
+                    $('#result2').text('从道路小段' + response.startlinkid +'到道路小段'+response.endlinkid+ '的估计路况状态是未知')
+                }else{
+                    $('#result2').text('错误！')
                 }
-                $('#result3').text('道路小段' + response.linkid + '的估计通行比例是' + response.average_ratio
+                $('#result3').text('从道路小段' + response.startlinkid +'到道路小段'+response.endlinkid+ '的估计通行比例是' + response.average_ratio
                     .toFixed(6));
 
             },
