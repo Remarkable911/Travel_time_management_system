@@ -16,14 +16,27 @@
     var myChart = echarts.init(document.getElementById('linknet'));
     // 监听图表点击事件
     myChart.on('click', function (params) {
-        if (params.dataType === 'node') {
+        if (params.dataType === 'node') { 
             var nodeName = params.data.name;
             // 发送点击节点信息到后台
             $.post('/handle_node_click', {
-                nodeName: nodeName
+                nodeName: nodeName                                                                                                                                                                      
             }, function (response) {
 
             });
+            $.ajax({
+                url: '/handle_node_click',
+                type: 'POST',
+                data:{
+                    nodeName: nodeName
+                },
+                success: function (response) {
+                    console.log('请求成功，服务器响应',response);
+                },
+                error: function (response) {
+                    console.log('请求失败，服务器响应',response);
+                }
+            })
         }
     });
     myChart.showLoading();

@@ -6,14 +6,19 @@
 
 {% endblock %}
 {% block mainbox %}
+<div class="row">
+    <h2 class=" text-center mb-2">行程时间预测</h2>
+    <button id="avglinks" class="btn btn-primary">更新数据</button>
+</div>
 
-<h2 class=" text-center mb-2">行程时间预测</h2>
-<!-- 
+
+<!--
     丐版：我现在的trajectorylink表中，有8月1日的一部分link数据，
     里面有通行时间，道路小段路况状态，
     通过搜索linkid，取平均数显示该link的估计通行时间和路况状态。
 -->
 <div class="row mb-4 mt-4" id="form-query">
+    <h4>路段估值</h4>
     <form id="query-users">
         <div class="row mb-4">
             <div class="col mb-2 ml-3 flex">
@@ -30,16 +35,7 @@
                         required>
                 </div>
             </div>
-            <div class="col mb-2 flex">
-                <label for="method" class="col-form-label ">预测方法：</label>
-                <div>
-                    <select class="form-select" aria-label=".form-select example" id="method" name="method" required>
-                        <option selected disabled value="">请选择方法</option>
-                        <option value="1">平均值法</option>
-                        <option value="2">长短期记忆法</option>
-                    </select>
-                </div>
-            </div>
+
             <div class="col flex">
                 <div class="col mb-2">
                     <button type="submit" class="btn btn-primary link-query" data-action="query-link"> 查询
@@ -50,15 +46,72 @@
                 </div>
             </div>
     </form>
+    <h4 id="result" class="text-center mb-4"></h4>
+    <h4 id="result2" class="text-center mb-4"></h4>
 </div>
-<h4 id="result" class="text-center mb-4"></h4>
-<h4 id="result2" class="text-center mb-4"></h4>
+<div class=" mb-4 mt-4" id="form-query">
+    <h4>总体估值</h4>
+    <form id="query-users">
+        <div class="row mb-4">
+            <div class="col mb-2 ml-3 flex">
+                <label for="startlinkid-2" class="col-form-label ">路段起点：</label>
+                <div>
+                    <input type="text" class="form-control" name="startlinkid-2" id="startlinkid-2"
+                        placeholder="请输入起点路段" required>
+                </div>
+            </div>
+            <div class="col mb-2 ml-3 flex">
+                <label for="endlinkid-2" class="col-form-label ">路段终点：</label>
+                <div>
+                    <input type="text" class="form-control" name="endlinkid-2" id="endlinkid-2" placeholder="请输入终点路段"
+                        required>
+                </div>
+            </div>
+            <div class="col flex">
+                <div class="col mb-2">
+                    <button type="submit" class="btn btn-primary link-query-2" data-action="query-link-2"> 查询
+                    </button>
+                </div>
+                <div class=" col mb-2">
+                    <button type="reset" class="btn btn-warning"> 重置 </button>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class=" col mb-2 ml-3 flex">
+                <label for="arrivaltime" class="col-form-label  w-24">出行时间：</label>
+                <input type="text" class="form-control " style="width: 80px; height: 48px;" placeholder="小时"
+                    aria-label="hour" id="hour" name="hour">
+                <span class="input-group-text h-10 ">:</span>
+                <input type="text" class="form-control " style="width: 80px; height: 48px;" placeholder="分钟"
+                    aria-label="min" id="min" name="min">
+            </div>
+            <div class="col mb-2 ml-3 flex">
+                <label for="method" class="col-form-label ">时间片</label>
+                <div>
+                    <select class="form-select" aria-label=".form-select example" id="method" name="method" required>
+                        <option selected disabled value="">请选择时间片</option>
+                        <option value="4">1小时</option>
+                        <option value="2">30分钟</option>
+                        <option value="1">15分钟</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col mb-2 ml-3 flex"></div>
+        </div>
+
+    </form>
+    <h4 id="result3" class="text-center mb-4"></h4>
+    <h4 id="result4" class="text-center mb-4"></h4>
+
+</div>
 
 
 
 
 
-<!-- 
+
+<!--
         给他一个搜索框（给出起点和终点，预测方法），
         结果是起点到终点的经过linkid和每一段link的时间。
      -->
@@ -83,9 +136,17 @@
             success: function (response) {
                 // 请求成功时执行的操作
                 console.log('请求成功！服务器响应：', response);
-                
-                $('#result').text("起点路段：" + response.startlinkid+ "，终点路段：" + response.endlinkid+"的预测时间："+response.average_linktime.toFixed(6));
-                $('#result2').text("经过路段"+response.path)
+                if (response.average_linktime === 'Infinity') {
+                    $('#result').text("暂无历史数据")
+                    $('#result2').text("")
+
+                } else {
+                    $('#result').text("起点路段：" + response.startlinkid + "，终点路段：" + response
+                        .endlinkid +
+                        "的预测时间：" + response.average_linktime.ToFixed(3));
+                    $('#result2').text("经过路段" + response.path)
+                }
+
             },
             error: function (xhr, status, error) {
                 // 请求失败时执行的操作
@@ -97,6 +158,52 @@
 
     });
 </script>
+<script>
+    $('.link-query-2').click(function (event) {
+        event.preventDefault(); // 阻止按钮默认点击事件
+        var action = $(this).data('action');
+        var startlinkid = $('#startlinkid-2').val();
+        var endlinkid = $('#endlinkid-2').val();
+        var selectedValue = $('#method').val();
+        var hour = $('#hour').val();
+        var min = $('#min').val();
+        console.log(startlinkid);
+        // 发送 AJAX 请求将文件数据发送到服务器
+        $.ajax({
+            url: '/forecast', // 服务器端处理上传的 URL
+            type: 'POST',
+            data: {
+                action: action,
+                startlinkid: startlinkid,
+                endlinkid: endlinkid,
+                slice: selectedValue,
+                hour: hour,
+                min: min
+            },
+            success: function (response) {
+                // 请求成功时执行的操作
+                console.log('请求成功！服务器响应：', response);
 
+                $('#result3').text("起点路段：" + response.startlinkid + "，终点路段：" + response.endlinkid +
+                    " 的预测时间：" + response.average_ata.average_ata);
+            },
+            error: function (xhr, status, error) {
+                // 请求失败时执行的操作
+                console.error('请求失败！错误信息：', error);
+
+                // 可以根据错误信息执行其他操作
+            }
+        });
+
+    });
+</script>
+<script>
+    $('#avglinks').click(function () {
+        // 发送 AJAX 请求触发 avglinks() 函数
+        $.get('/avglinks', function () {
+
+        });
+    });
+</script>
 
 {% endblock %}

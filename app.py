@@ -4,6 +4,7 @@ from import_csv import import_csv_to_db1, import_csv_to_db2, import_csv_to_db3
 import os,json
 import networkx as nx
 import pickle
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '12345'
 
@@ -17,13 +18,12 @@ def handle_node_click():
 # 如果link数据有变化时，更新linkavg表
 @app.route('/avglinks', methods=['GET'])
 def avglinks():
-    sql =""""
+    sql ="""
     INSERT INTO linkavg (linkid, linkavgtime, avgstatus)
     SELECT linkid, AVG(linktime) AS avg_linktime, ROUND(AVG((linkcurrentstatus + linkarrivalstatus) / 2)) AS avg_status
     FROM trajectorylink
     GROUP BY linkid
-    ON CONFLICT(linkid)
-    DO UPDATE SET linkavgtime = excluded.linkavgtime, avgstatus = excluded.avgstatus;
+    ON DUPLICATE KEY UPDATE linkavgtime = VALUES(linkavgtime), avgstatus = VALUES(avgstatus);
     """
     execute_query(sql)
 
@@ -225,15 +225,36 @@ def forecast():
                 distance='Infinity'
             print("Shortest Path:", shortest_path)
             print("Shortest Distance:", distance)
-            response_data = {
+            response_data_1 = {
                 'startlinkid': startlinkid,
                 'endlinkid': endlinkid,
                 'average_linktime': distance,
                 'path': shortest_path,
             }
             # 返回 JSON 格式的响应数据
-            print(response_data)
-            return jsonify(response_data)
+            return jsonify(response_data_1)
+        elif action == 'query-link-2':
+            startlinkid = request.form.get('startlinkid')
+            endlinkid = request.form.get('endlinkid')
+            slice = int(request.form.get('slice'))
+            hour=int(request.form.get('hour'))
+            min=int(request.form.get('min'))
+            min_slice=int(((hour+16)%24*60+min)/5)
+            max_slice=min_slice+slice*3
+            sql="""
+                SELECT AVG(ata) AS average_ata
+                FROM `order`
+                WHERE startlink = %s
+                AND endlink = %s
+                AND sliceid BETWEEN %s AND %s;
+                """
+            data=execute_query(sql,[startlinkid,endlinkid,min_slice,max_slice])
+            response_data_2={
+                'startlinkid': startlinkid,
+                'endlinkid': endlinkid,
+                'average_ata':data[0]
+            }
+            return jsonify(response_data_2)
     else:
         
         return render_template('forecast.html')

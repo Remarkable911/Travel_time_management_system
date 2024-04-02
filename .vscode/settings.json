@@ -1,6 +1,7 @@
 {
   "cSpell.words": [
     "ADJL",
+    "arrivaltime",
     "avglinks",
     "avgstatus",
     "bootstarp",
@@ -10,6 +11,7 @@
     "driveid",
     "driverid",
     "echarts",
+    "endlink",
     "endlinkid",
     "entranceid",
     "exitid",
@@ -43,6 +45,7 @@
     "reflog",
     "simpleeta",
     "sliceid",
+    "startlink",
     "startlinkid",
     "tailwindcss",
     "tmpsql",
