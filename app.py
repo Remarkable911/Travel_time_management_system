@@ -7,7 +7,8 @@ import pickle
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '12345'
-
+app.config['TESTING'] = True
+app.debug = True
 # 结点信息
 @app.route('/handle_node_click', methods=['GET','POST'])
 def handle_node_click():
@@ -202,7 +203,9 @@ def processing():
         return render_template('processing.html',data1=data1,data2=data2,data3=data3)
 
 
-
+@app.route('/statistics',methods=['GET', 'POST'])
+def statistics():
+    return render_template('statistics.html')
 
 # 预测界面
 @app.route('/forecast', methods=['GET', 'POST'])

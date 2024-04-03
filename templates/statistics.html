@@ -1,22 +1,316 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'container.html' %}
+{% block title %}
+数据统计-行程时间管理系统
+{% endblock %}
+<!-- 引入 Bootstrap 的日期选择器插件 CSS 文件 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet">
+{% block extcss %}
+{% endblock %}
+{% block mainbox %}
+<!-- 实现的功能-数据统计（某个时间段内的交通流量（出入））、流量趋势、轨迹统计（司机） -->
+<form id="query-users">
+    <div class="row">
+        <div class="col mb-2">
+            <label for="username" class="col-form-label ">省份：</label>
+            <div>
+                <input type="text" class="form-control" name="username" id="username" placeholder="请输入省份" required>
+            </div>
+        </div>
+        <div class="col mb-2">
+            <label for="id" class="col-form-label ">城市：</label>
+            <div>
+                <input type="text" class="form-control" id="id" name="id" placeholder="请输入城市" required>
+            </div>
+        </div>
+        <div class="col mb-2">
+            <label for="id" class="col-form-label ">日期：</label>
+            <div>
+                <input type="text" id="datepicker" class="form-control">
+            </div>
+            
+        </div>
+        <div class="col mb-2">
+            <label for="phone" class="col-form-label ">手机号：</label>
+            <div>
+                <input type="tel" class="form-control" id="phone" name="phone" placeholder="请输入手机号" required>
+            </div>
+        </div>
 
-<head>
-    <meta charset="UTF-8">
-    <title>数据统计-行程时间管理系统</title>
-    <link rel="stylesheet" href="/static/plugins/bootstrap-5.3.0-alpha1-dist/css/bootstrap.css">
-    <link rel="stylesheet" href="/static/css/common/reset.css">
-    <link rel="stylesheet" href="/static/css/statistics.css">
-</head>
+    </div>
+    <div class="row">
 
-<body>
-    <!-- 实现的功能-数据统计（某个时间段内的交通流量（出入））、流量趋势、轨迹统计（司机） -->
+        <div class="col mb-2">
+            <label for="email" class="col-form-label ">邮箱：</label>
+            <div>
+                <input type="email" class="form-control" id="email" name="email" placeholder="请输入邮箱" required>
+            </div>
+        </div>
+        <div class="col mb-2">
+            <label for="role" class="col-form-label ">角色：</label>
+            <div>
+                <select class="form-select" aria-label=".form-select example" id="role" name="role" required>
+                    <option selected disabled value="">请选择角色</option>
+                    <option value="1">普通用户</option>
+                    <option value="2">权限管理员</option>
+                    <option value="3">超级管理员</option>
+                </select>
+            </div>
+        </div>
+        <div class="col mb-2">
+            <label for="normal" class="col-form-label ">用户状态：</label>
+            <div class="row mt-2">
+
+                <div class=" col form-check">
+                    <input class="form-check-input " type="radio" name="state" id="normal" value="1" checked>
+                    <label class="form-check-label" for="normal">
+                        正常
+                    </label>
+                </div>
+                <div class="col form-check">
+                    <input class="form-check-input" type="radio" name="state" id="disable" value="2" checked>
+                    <label class="form-check-label" for="disable">
+                        禁用
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="col mb-2">
+            <div class="row mt-4">
+                <div class="col mb-2">
+                    <button type="submit" class="btn btn-primary add-btn" data-action="add"> 添加
+                    </button>
+                </div>
+                <div class=" col mb-2">
+                    <button type="reset" class="btn btn-warning"> 重置 </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+<div class="accordion accordion-flush" id="accordionFlushExample">
+    <!-- 订单导入组件 -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                订单导入
+            </button>
+        </h2>
+        <!-- 订单导入主体部分 -->
+        <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+                <!-- 头部 -->
+                <div class="order-in">
+                    <div class="banner-in">
+                        <label for="order_file" class="form-label">订单导入</label>
+                        <label class="download-example">请参考样例格式上传文件</label>
+                        <a href="../static/example/example_order.CSV" id="download-exam1" class="btn btn-primary"
+                            download>参考样例</a>
+                    </div>
+
+                    <input class="form-control file-in" type="file" id="order_file" accept=".csv" name="order_file">
+                    <button class="btn btn-primary order-in-btn" type="submit" data-action="in-one">导入</button>
+                </div>
+                <div class="row mb-4" id="form-query">
+                    <form id="query-users">
+
+                        <div class="row">
+                            <div class="col mb-2">
+                                <h3>按日期查询:</h3>
+                            </div>
+                            <div class="col mb-2">
+
+                                <div>
+                                    <input type="number" class="form-control" name="year" id="year" required>
+                                </div>
+                                <label for="year" class="col-form-label ">年</label>
+                            </div>
+
+                            <div class="col mb-2">
+
+                                <div>
+                                    <input type="number" class="form-control" id="month" name="month" required>
+                                </div>
+                                <label for="month" class="col-form-label ">月</label>
+                            </div>
+                            <div class="col mb-2">
+
+                                <div>
+                                    <input type="number" class="form-control" id="day" name="day" required>
+                                </div>
+                                <label for="day" class="col-form-label ">日</label>
+                            </div>
+                            <div class="col mb-2">
+                                <div class="row mt-4">
+                                    <div class="col mb-2">
+                                        <button type="submit" class="btn btn-primary query-order-btn"
+                                            data-action="query-order"> 查询订单
+                                        </button>
+                                    </div>
+                                    <div class=" col mb-2">
+                                        <button type="reset" class="btn btn-warning"> 重置 </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
 
+                    </form>
+                </div>
+                <!-- 表格 -->
+                <div class="order-list">
+                    <!-- 表格控件（无边框，可悬停，有切换页码） -->
+                    <div class="row">
+                        <table class="table table-striped table-hover table-responsive text-center">
+                            <thead>
+                                <tr>
 
+                                    <th scope="col">订单编号</th>
+                                    <th scope="col">真实行程总时间</th>
+                                    <th scope="col">路线距离</th>
+                                    <th scope="col">出发时刻平均通行时间</th>
+                                    <th scope="col">司机编号</th>
+                                    <th scope="col">出发时刻时间片编号</th>
+                                    <th scope="col">日期</th>
 
-    <script src="/static/js/jquery-3.7.1.js"></script>
-    <script src="/static/plugins/bootstrap-5.3.0-alpha1-dist/js/bootstrap.js"></script>
-</body>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in data1 %}
+                                <tr data-id="{{ row.orderid }}">
+                                    <td style="vertical-align: middle;font-size:large">{{ row.orderid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.ata }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.distance }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.simpleeta }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.driverid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.sliceid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.date }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 天气导入组件 -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                天气导入
+            </button>
+        </h2>
+        <!-- 主体 -->
+        <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+                <!-- 头部 -->
+                <div class="weather-in">
+                    <div class="banner-in ">
+                        <label for="weatherFile" class="form-label">天气导入</label>
+                        <label class="download-example">请参考样例格式上传文件</label>
+                        <a href="../static/example/example_weather.CSV" id="download-exam2" class="btn btn-primary"
+                            download>参考样例</a>
+                    </div>
 
-</html>
+                    <input class="form-control file-in" type="file" id="weather_file" accept=".csv" name="weather_file">
+                    <button class="btn btn-primary weather-in-btn" type="submit" data-action="in-two">导入</button>
+                </div>
+                <!-- 表格 -->
+                <div class="order-list">
+                    <!-- 表格控件（无边框，可悬停，有切换页码） -->
+                    <div class="row">
+                        <table class="table table-striped table-hover table-responsive text-center">
+                            <thead>
+                                <tr>
+                                    <th scope="col">日期</th>
+                                    <th scope="col">天气情况</th>
+                                    <th scope="col">最高气温</th>
+                                    <th scope="col">最低气温</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in data2 %}
+                                <tr data-id="{{ row.date }}">
+                                    <td style="vertical-align: middle;font-size:large">{{ row.date }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.weather }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.hightemp }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.lowtemp }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 路径导入组件 -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+                路径导入
+            </button>
+        </h2>
+        <!-- 路径导入主体部分 -->
+        <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+                <!-- 头部 -->
+                <div class="section-in">
+                    <div class="banner-in">
+                        <label for="sectionFile" class="form-label">路径导入</label>
+                        <label class="download-example">请参考样例格式上传文件</label>
+                        <a href="../static/example/example_intersection.CSV" id="download-exam3" class="btn btn-primary"
+                            download>参考样例</a>
+                    </div>
+
+                    <input class="form-control file-in" type="file" id="section_file" accept=".csv" name="section_file">
+                    <button class="btn btn-primary section-in-btn" type="submit" data-action="in-three">导入</button>
+                </div>
+                <!-- 表格 -->
+                <div class="order-list">
+                    <!-- 表格控件（无边框，可悬停，有切换页码） -->
+                    <div class="row">
+                        <table class="table table-striped table-hover table-responsive text-center">
+                            <thead>
+                                <tr>
+                                    <th scope="col">红绿灯路口编号</th>
+                                    <th scope="col">路口通行时间</th>
+                                    <th scope="col">驶入路口编号</th>
+                                    <th scope="col">驶出路口编号</th>
+                                    <th scope="col">订单编号</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in data3 %}
+                                <tr data-id="{{ row.create_at }}">
+                                    <td style="vertical-align: middle;font-size:large">{{ row.crossid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.crosstime }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.entranceid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.exitid }}</td>
+                                    <td style="vertical-align: middle;font-size:large">{{ row.orderid }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 自定义导入组件 -->
+    
+</div>
+{% endblock %}
+{% block extjs %}
+<script>
+    // 初始化日期选择器
+    $(document).ready(function(){
+        $('#datepicker').datepicker();
+    });
+</script>
+{% endblock %}

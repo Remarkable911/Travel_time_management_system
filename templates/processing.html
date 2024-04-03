@@ -6,7 +6,14 @@
 
 {% endblock %}
 {% block mainbox %}
-<h2 class=" text-center">数据处理</h2>
+    <h2 class=" text-center">数据处理</h2>
+    <div>
+        <button class="btn btn-primary" id="add-moudle">添加自定义模块</button>
+        <div>
+            
+        </div>
+    </div>
+
 <!-- 面包屑 -->
 <div class="accordion accordion-flush" id="accordionFlushExample">
     <!-- 订单导入组件 -->
@@ -221,6 +228,8 @@
             </div>
         </div>
     </div>
+    <!-- 自定义导入组件 -->
+    
 </div>
 
 {% endblock %}
@@ -366,6 +375,12 @@
                 alert('用户查询失败，请重试！');
             }
         });
+    });
+</script>
+<script>
+    $('#add-moudle').click(function(event){
+        event.preventDefault();
+        
     });
 </script>
 {% endblock %}
